@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading...</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {--primary-color: #7c3aed;--secondary-color: #a855f7;--accent-color: #f59e0b;--dark-bg: #0f0f23;--card-bg: #1a1a2e;--text-primary: #ffffff;--text-secondary: #a0a0b8;--success-color: #10b981;--danger-color: #ef4444;--warning-color: #f59e0b;}
+        * {margin: 0;padding: 0;box-sizing: border-box;}
+        body {font-family: 'Rajdhani', sans-serif;background-color: var(--dark-bg);color: var(--text-primary);min-height: 100vh;overflow-x: hidden;}
+        .container {max-width: 1200px;margin: 0 auto;padding: 0 15px;}
+        .hidden { display: none !important; }
+        .app-loader { display: flex; justify-content: center; align-items: center; height: 100vh; font-size: 24px; flex-direction: column; gap: 10px; }
+        .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--primary-color); width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        header {background: linear-gradient(135deg, var(--card-bg) 0%, #16213e 100%);padding: 15px 0;box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);position: sticky;top: 0;z-index: 100;}
+        .header-content {display: flex;justify-content: space-between;align-items: center;}
+        .logo {font-family: 'Orbitron', sans-serif;font-size: 28px;font-weight: 900;color: var(--primary-color);text-shadow: 0 0 10px rgba(124, 58, 237, 0.5);display: flex;align-items: center;}
+        .logo i {margin-right: 10px;font-size: 30px;}
+        .nav-links {display: flex;gap: 20px;}
+        .nav-link {color: var(--text-secondary);text-decoration: none;font-weight: 600;font-size: 18px;transition: all 0.3s ease;padding: 8px 15px;border-radius: 5px;}
+        .nav-link:hover, .nav-link.active {color: var(--primary-color);background-color: rgba(124, 58, 237, 0.1);}
+        .user-info {display: flex;align-items: center;gap: 15px;}
+        .balance {background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));padding: 8px 15px;border-radius: 20px;font-weight: 700;font-size: 18px;box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);}
+        .user-avatar {width: 40px;height: 40px;border-radius: 50%;background-color: var(--primary-color);display: flex;align-items: center;justify-content: center;font-weight: 700;font-size: 18px; cursor: pointer;}
+        main {padding: 30px 0;}
+        .page {display: none;}
+        .page.active {display: block;}
+        .slider {height: 300px;background: var(--card-bg);border-radius: 15px;margin-bottom: 30px;overflow: hidden;position: relative;box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);}
+        .slider img {width: 100%;height: 100%;object-fit: cover;position: absolute;opacity: 0;transition: opacity 1s ease-in-out;}
+        .slider img.visible {opacity: 1;}
+        .announcement {background-color: var(--card-bg);padding: 15px;border-radius: 10px;margin-bottom: 30px;overflow: hidden;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);}
+        .announcement-text {white-space: nowrap;animation: scroll 20s linear infinite;font-size: 18px;color: var(--accent-color);}
+        @keyframes scroll {0% { transform: translateX(100%); } 100% { transform: translateX(-100%); }}
+        .section-title {font-family: 'Orbitron', sans-serif;font-size: 28px;font-weight: 700;margin-bottom: 20px;color: var(--primary-color);text-transform: uppercase;letter-spacing: 1px;}
+        .tournaments-grid {display: grid;grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));gap: 20px;}
+        .tournament-card {background: linear-gradient(135deg, var(--card-bg), #16213e);border-radius: 15px;overflow: hidden;box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);transition: transform 0.3s ease, box-shadow 0.3s ease; display: flex; flex-direction: column;}
+        .tournament-card:hover {transform: translateY(-5px);box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);}
+        .tournament-image {height: 180px;background-size: cover; background-position: center; display: flex;align-items: center;justify-content: center;font-size: 60px;color: white;}
+        .tournament-info {padding: 20px; flex-grow: 1; display: flex; flex-direction: column;}
+        .tournament-header {display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;}
+        .tournament-title {font-size: 22px;font-weight: 700; flex-grow: 1;}
+        .tournament-time {font-size: 14px; color: var(--text-secondary); text-align: right;}
+        .countdown {font-weight: 700; color: var(--warning-color); display: block;}
+        .tournament-details {display: flex;justify-content: space-between;margin-bottom: 15px;}
+        .tournament-detail {display: flex;flex-direction: column;align-items: center;}
+        .detail-label {color: var(--text-secondary);font-size: 14px;margin-bottom: 5px;}
+        .detail-value {font-size: 18px;font-weight: 700;color: var(--accent-color);}
+        .tournament-footer { margin-top: auto; }
+        .join-btn {width: 100%;padding: 12px;background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));border: none;border-radius: 8px;color: white;font-size: 18px;font-weight: 700;cursor: pointer;transition: all 0.3s ease;}
+        .join-btn:hover:not(:disabled) {background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));transform: scale(1.02);}
+        .join-btn:disabled {background: #555; cursor: not-allowed; transform: none;}
+        .profile-container {display: flex;gap: 30px;}
+        .profile-sidebar {flex: 1;max-width: 300px;}
+        .profile-card {background: linear-gradient(135deg, var(--card-bg), #16213e);border-radius: 15px;padding: 30px;text-align: center;box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);}
+        .profile-avatar {width: 120px;height: 120px;border-radius: 50%;background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));display: flex;align-items: center;justify-content: center;margin: 0 auto 20px;font-size: 50px;color: white;}
+        .profile-name {font-size: 24px;font-weight: 700;margin-bottom: 10px;}
+        .profile-email {color: var(--text-secondary);margin-bottom: 20px;}
+        .balance-info {display: flex;justify-content: space-between;margin-bottom: 15px;padding: 10px;background-color: rgba(124, 58, 237, 0.1);border-radius: 8px;}
+        .balance-label {color: var(--text-secondary);}
+        .balance-value {font-weight: 700;color: var(--accent-color);}
+        .profile-menu {margin-top: 30px;}
+        .menu-item {display: flex;align-items: center;padding: 15px;margin-bottom: 10px;background-color: var(--card-bg);border-radius: 10px;cursor: pointer;transition: all 0.3s ease;}
+        .menu-item:hover {background-color: rgba(124, 58, 237, 0.2);transform: translateX(5px);}
+        .menu-item i {margin-right: 15px;color: var(--primary-color);font-size: 20px;}
+        .profile-content {flex: 2;}
+        .content-card {background: linear-gradient(135deg, var(--card-bg), #16213e);border-radius: 15px;padding: 30px;box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);}
+        .content-title {font-size: 24px;font-weight: 700;margin-bottom: 20px;color: var(--primary-color);}
+        .payment-container {max-width: 600px;margin: 0 auto;}
+        .payment-card {background: linear-gradient(135deg, var(--card-bg), #16213e);border-radius: 15px;padding: 30px;box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);}
+        .payment-title {font-size: 28px;font-weight: 700;margin-bottom: 20px;text-align: center;color: var(--primary-color);}
+        .payment-methods {display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 30px;}
+        .payment-method {text-align: center; cursor: pointer; padding: 10px; border-radius: 10px; border: 2px solid transparent; transition: all 0.3s ease;}
+        .payment-method.selected { border-color: var(--primary-color); background-color: rgba(124, 58, 237, 0.1);}
+        .payment-method-icon {width: 60px; height: 60px; border-radius: 10px; margin-bottom: 10px; object-fit: contain;}
+        .payment-method-name {font-weight: 600;}
+        .payment-details {text-align: center; margin-bottom: 20px; padding: 15px; background-color: rgba(0,0,0,0.2); border-radius: 8px;}
+        .form-group {margin-bottom: 20px;}
+        .form-label {display: block;margin-bottom: 8px;font-weight: 600;font-size: 18px;}
+        .form-input {width: 100%;padding: 12px 15px;background-color: rgba(255, 255, 255, 0.1);border: 2px solid rgba(124, 58, 237, 0.3);border-radius: 8px;color: white;font-size: 16px;transition: all 0.3s ease;}
+        .form-input:focus {outline: none;border-color: var(--primary-color);background-color: rgba(124, 58, 237, 0.1);}
+        .submit-btn {width: 100%;padding: 15px;background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));border: none;border-radius: 8px;color: white;font-size: 18px;font-weight: 700;cursor: pointer;transition: all 0.3s ease;}
+        .submit-btn:hover {background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));transform: scale(1.02);}
+        .note {margin-top: 20px;padding: 15px;background-color: rgba(245, 158, 11, 0.1);border-left: 4px solid var(--warning-color);border-radius: 5px;}
+        .note-title {font-weight: 700;margin-bottom: 5px;color: var(--warning-color);}
+        .auth-container {display: flex;justify-content: center;align-items: center;min-height: 100vh;}
+        .auth-card {width: 100%;max-width: 450px;background: linear-gradient(135deg, var(--card-bg), #16213e);border-radius: 15px;padding: 40px;box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);}
+        .auth-title {font-size: 32px;font-weight: 700;margin-bottom: 30px;text-align: center;color: var(--primary-color);}
+        .auth-tabs {display: flex;margin-bottom: 30px;}
+        .auth-tab {flex: 1;padding: 12px;text-align: center;background-color: rgba(124, 58, 237, 0.1);border: none;color: var(--text-secondary);font-size: 18px;font-weight: 600;cursor: pointer;transition: all 0.3s ease;}
+        .auth-tab:first-child {border-radius: 8px 0 0 8px;}
+        .auth-tab:last-child {border-radius: 0 8px 8px 0;}
+        .auth-tab.active {background-color: var(--primary-color);color: white;}
+        .auth-form {display: none;}
+        .auth-form.active {display: block;}
+        .notification {position: fixed;top: 80px;right: 20px;padding: 15px 20px;border-radius: 8px;color: white;font-weight: 600;box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);transform: translateX(120%);transition: transform 0.3s ease;z-index: 1000;}
+        .notification.show {transform: translateX(0);}
+        .notification.success {background-color: var(--success-color);}
+        .notification.error {background-color: var(--danger-color);}
+        .notification.warning {background-color: var(--warning-color);}
+        .modal {display: none;position: fixed;top: 0;left: 0;width: 100%;height: 100%;background-color: rgba(0, 0, 0, 0.7);z-index: 1000;justify-content: center;align-items: center;}
+        .modal.active {display: flex;}
+        .modal-content {background: linear-gradient(135deg, var(--card-bg), #16213e);border-radius: 15px;padding: 30px;width: 90%;max-width: 500px;box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);}
+        .modal-header {display: flex;justify-content: space-between;align-items: center;margin-bottom: 20px;}
+        .modal-title {font-size: 24px;font-weight: 700;color: var(--primary-color);}
+        .modal-close {background: none;border: none;color: var(--text-secondary);font-size: 24px;cursor: pointer;}
+        .room-details { background-color: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; }
+        .room-details p { margin-bottom: 10px; font-size: 18px; }
+        .room-details strong { color: var(--accent-color); user-select: all; }
+        @media (max-width: 768px) {.header-content {flex-direction: column;gap: 15px;}.nav-links {width: 100%;justify-content: center;}.profile-container {flex-direction: column;}.profile-sidebar {max-width: 100%;}.tournaments-grid {grid-template-columns: 1fr;}}
+    </style>
+</head>
+<body>
+    <div id="app-loader" class="app-loader">
+        <div class="spinner"></div>
+        <span>Loading App...</span>
+    </div>
+
+    <div id="auth-container" class="auth-container hidden">
+        <div class="auth-card">
+            <h1 class="auth-title" id="auth-app-name">Gaming Portal</h1>
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+            <form id="login-form" class="auth-form active">
+                <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="login-email" required></div>
+                <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="login-password" required></div>
+                <button type="submit" class="submit-btn">Login</button>
+            </form>
+            <form id="register-form" class="auth-form">
+                <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input" id="register-name" required></div>
+                <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="register-email" required></div>
+                <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="register-password" required></div>
+                <button type="submit" class="submit-btn">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="main-app" class="hidden">
+        <header>
+            <div class="container"><div class="header-content"><div class="logo"><i class="fas fa-gamepad"></i><span id="header-app-name">Gaming Portal</span></div><nav class="nav-links"><a href="#" class="nav-link active" data-page="home">Home</a><a href="#" class="nav-link" data-page="tournaments">Tournaments</a></nav><div class="user-info"><div class="balance">৳<span id="wallet-balance">0</span></div><div class="user-avatar" id="user-avatar-icon" data-page="profile">U</div></div></div></div>
+        </header>
+        <main>
+            <div class="container">
+                <div id="home-page" class="page active"><div class="slider" id="slider-container"></div><div class="announcement"><div class="announcement-text" id="announcement-text"></div></div><h2 class="section-title">Featured Tournaments</h2><div class="tournaments-grid" id="featured-tournaments"></div></div>
+                <div id="tournaments-page" class="page"><h2 class="section-title">All Tournaments</h2><div class="tournaments-grid" id="all-tournaments"></div></div>
+                <div id="profile-page" class="page"><div class="profile-container"><div class="profile-sidebar"><div class="profile-card"><div class="profile-avatar" id="profile-avatar">U</div><h3 class="profile-name" id="profile-name"></h3><p class="profile-email" id="profile-email"></p><div class="balance-info"><span class="balance-label">Wallet:</span><span class="balance-value">৳<span id="profile-wallet">0</span></span></div><div class="balance-info"><span class="balance-label">Winnings:</span><span class="balance-value">৳<span id="profile-winnings">0</span></span></div></div><div class="profile-menu"><div class="menu-item" data-page="add-money"><i class="fas fa-plus-circle"></i><span>Add Money</span></div><div class="menu-item" data-page="withdraw-money"><i class="fas fa-minus-circle"></i><span>Withdraw</span></div><div class="menu-item" data-page="privacy"><i class="fas fa-shield-alt"></i><span>Privacy Policy</span></div><div class="menu-item" data-page="terms"><i class="fas fa-file-contract"></i><span>Terms</span></div><div class="menu-item" id="logout-btn"><i class="fas fa-sign-out-alt"></i><span>Logout</span></div></div></div><div class="profile-content"><div class="content-card hidden" id="profile-content-card"><h3 class="content-title" id="content-title">Dashboard</h3><div id="content-body"></div></div></div></div></div>
+                <div id="add-money-page" class="page"><div class="payment-container"><div class="payment-card"><h2 class="payment-title">Add Money</h2><p style="text-align:center; margin-bottom: 20px; color: var(--text-secondary);">Select a payment method</p><div class="payment-methods" id="deposit-methods-container"></div><div id="payment-details-container" class="payment-details hidden"></div><form id="add-money-form"><div class="form-group"><label class="form-label">Amount (৳)</label><input type="number" class="form-input" id="add-amount" placeholder="Min amount" required></div><div class="form-group"><label class="form-label">Transaction ID</label><input type="text" class="form-input" id="add-transaction-id" required></div><button type="submit" class="submit-btn">Submit Request</button></form></div></div></div>
+                <div id="withdraw-money-page" class="page"><div class="payment-container"><div class="payment-card"><h2 class="payment-title">Withdraw Money</h2><p style="text-align:center; margin-bottom: 20px; color: var(--text-secondary);">Select a withdrawal method</p><div class="payment-methods" id="withdrawal-methods-container"></div><div id="withdrawal-details-container" class="payment-details hidden"></div><form id="withdraw-money-form"><div class="form-group"><label class="form-label">Amount (৳)</label><input type="number" class="form-input" id="withdraw-amount" placeholder="Min amount" required></div><div class="form-group"><label class="form-label">Your Account Number</label><input type="text" class="form-input" id="mfs-number" required></div><button type="submit" class="submit-btn">Submit Request</button></form><div class="note"><div class="note-title">Note:</div><p>Only winnings can be withdrawn.</p></div></div></div></div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal" id="room-details-modal"><div class="modal-content"><div class="modal-header"><h2 class="modal-title">Room Details</h2><button class="modal-close">&times;</button></div><div class="room-details" id="room-details-content"></div></div></div>
+    <div class="notification" id="notification"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            // PASTE YOUR FIREBASE CONFIGURATION HERE
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const loader = document.getElementById('app-loader');
+        const authContainer = document.getElementById('auth-container');
+        const mainAppContainer = document.getElementById('main-app');
+        const notification = document.getElementById('notification');
+        let currentUser = null;
+        let appSettings = {};
+        let joinedTournaments = [];
+        let unsubscribe = {};
+        let countdownIntervals = [];
+
+        auth.onAuthStateChanged(user => {
+            loader.classList.add('hidden');
+            if (user) {
+                currentUser = user;
+                authContainer.classList.add('hidden');
+                mainAppContainer.classList.remove('hidden');
+                initializeAppListeners();
+            } else {
+                currentUser = null;
+                authContainer.classList.remove('hidden');
+                mainAppContainer.classList.add('hidden');
+                cleanupListeners();
+            }
+        });
+
+        function initializeAppListeners() {
+            cleanupListeners();
+            unsubscribe.settings = db.collection('settings').doc('appConfig').onSnapshot(updateUISettings, handleFirestoreError);
+            unsubscribe.user = db.collection('users').doc(currentUser.uid).onSnapshot(updateUIUserData, handleFirestoreError);
+            unsubscribe.tournaments = db.collection('tournaments').where('status', '!=', 'archived').onSnapshot(updateUITournaments, handleFirestoreError);
+            showPage('home');
+        }
+
+        function cleanupListeners() {
+            Object.values(unsubscribe).forEach(unsub => unsub && unsub());
+            unsubscribe = {};
+            countdownIntervals.forEach(clearInterval);
+            countdownIntervals = [];
+        }
+
+        function updateUISettings(doc) {
+            if (!doc.exists) return;
+            appSettings = doc.data();
+            document.title = appSettings.appName || 'Gaming Portal';
+            ['auth-app-name', 'header-app-name'].forEach(id => document.getElementById(id).textContent = appSettings.appName);
+            document.getElementById('announcement-text').textContent = appSettings.announcementText;
+            document.getElementById('add-amount').placeholder = `Min amount ৳${appSettings.minDeposit || 0}`;
+            document.getElementById('withdraw-amount').placeholder = `Min amount ৳${appSettings.minWithdrawal || 0}`;
+            renderSlider(appSettings.sliderImages);
+            renderPaymentMethods(appSettings.depositMethods, 'deposit-methods-container');
+            renderPaymentMethods(appSettings.withdrawalMethods, 'withdrawal-methods-container');
+        }
+
+        function updateUIUserData(doc) {
+            if (!doc.exists) return;
+            const data = doc.data();
+            joinedTournaments = data.joinedTournaments || [];
+            const initial = data.name ? data.name.charAt(0).toUpperCase() : 'U';
+            document.getElementById('wallet-balance').textContent = data.walletBalance || 0;
+            document.getElementById('user-avatar-icon').textContent = initial;
+            document.getElementById('profile-avatar').textContent = initial;
+            document.getElementById('profile-name').textContent = data.name;
+            document.getElementById('profile-email').textContent = data.email;
+            document.getElementById('profile-wallet').textContent = data.walletBalance || 0;
+            document.getElementById('profile-winnings').textContent = data.winningsBalance || 0;
+            db.collection('tournaments').where('status', '!=', 'archived').get().then(updateUITournaments);
+        }
+
+        function updateUITournaments(snapshot) {
+            const tournaments = [];
+            snapshot.forEach(doc => tournaments.push({ id: doc.id, ...doc.data() }));
+            renderTournaments(tournaments, 'all-tournaments');
+            renderTournaments(tournaments, 'featured-tournaments');
+        }
+        
+        function renderSlider(images = []) {
+            const container = document.getElementById('slider-container');
+            container.innerHTML = images.length > 0 ? images.map((src, i) => `<img src="${src}" alt="Slider ${i+1}" class="${i === 0 ? 'visible' : ''}">`).join('') : `<img src="https://via.placeholder.com/1200x300.png?text=No+Image" class="visible" alt="Placeholder">`;
+            if (images.length > 1) {
+                let current = 0;
+                setInterval(() => {
+                    const slides = container.children;
+                    if(slides.length === 0) return;
+                    if (slides[current]) slides[current].classList.remove('visible');
+                    current = (current + 1) % slides.length;
+                    if (slides[current]) slides[current].classList.add('visible');
+                }, 4000);
+            }
+        }
+
+        function renderPaymentMethods(methods = [], containerId) {
+            document.getElementById(containerId).innerHTML = methods.map((m, i) => `
+                <div class="payment-method" data-container="${containerId}" data-index="${i}"><img src="${m.iconUrl}" alt="${m.name}" class="payment-method-icon"><div class="payment-method-name">${m.name}</div></div>
+            `).join('');
+        }
+        
+        function renderTournaments(tournaments, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            tournaments.forEach(t => {
+                const card = document.createElement('div');
+                card.className = 'tournament-card';
+                const startTime = t.matchStartTime?.toDate();
+                let timeHTML = '';
+                if(startTime) {
+                    timeHTML = `<div class="tournament-time">${startTime.toLocaleString()}<span class="countdown" data-time="${startTime.getTime()}"></span></div>`;
+                }
+
+                const hasJoined = joinedTournaments.includes(t.id);
+                const isFull = (t.joinedPlayers || 0) >= t.maxPlayers;
+                const isLive = startTime && new Date() >= startTime;
+
+                let buttonHTML;
+                if(hasJoined) {
+                    if(isLive && t.status !== 'completed'){
+                        buttonHTML = `<button class="join-btn" data-action="show-room" data-id="${t.id}" style="background-color: var(--success-color);">Show Room Details</button>`;
+                    } else {
+                         buttonHTML = `<button class="join-btn" disabled>Joined</button>`;
+                    }
+                } else if (t.status === 'upcoming' && !isFull) {
+                    buttonHTML = `<button class="join-btn" data-action="join" data-id="${t.id}" data-fee="${t.entryFee}">Join Now</button>`;
+                } else if (isFull) {
+                    buttonHTML = `<button class="join-btn" disabled>Full</button>`;
+                } else {
+                     buttonHTML = `<button class="join-btn" disabled>${t.status.toUpperCase()}</button>`;
+                }
+
+                card.innerHTML = `
+                    <div class="tournament-image" style="background-image: url('${t.imageUrl || 'https://via.placeholder.com/300x180.png?text=Game'}')"></div>
+                    <div class="tournament-info">
+                        <div class="tournament-header"><h3 class="tournament-title">${t.title}</h3>${timeHTML}</div>
+                        <div class="tournament-details">
+                            <div class="tournament-detail"><span class="detail-label">Entry</span><span class="detail-value">৳${t.entryFee}</span></div>
+                            <div class="tournament-detail"><span class="detail-label">Prize</span><span class="detail-value">৳${t.prizePool}</span></div>
+                            <div class="tournament-detail"><span class="detail-label">Players</span><span class="detail-value">${t.joinedPlayers || 0}/${t.maxPlayers}</span></div>
+                        </div>
+                        <div class="tournament-footer">${buttonHTML}</div>
+                    </div>`;
+                container.appendChild(card);
+            });
+            startAllCountdowns();
+        }
+        
+        function startAllCountdowns() {
+            countdownIntervals.forEach(clearInterval);
+            countdownIntervals = [];
+            document.querySelectorAll('.countdown').forEach(el => {
+                const endTime = parseInt(el.dataset.time);
+                if (isNaN(endTime) || endTime < new Date().getTime()) {
+                    if (endTime) el.textContent = "Started!";
+                    return;
+                };
+
+                const intervalId = setInterval(() => {
+                    const now = new Date().getTime();
+                    const distance = endTime - now;
+                    if (distance < 0) {
+                        clearInterval(intervalId);
+                        el.textContent = "Started!";
+                        return;
+                    }
+                    const d = Math.floor(distance / (1000*60*60*24));
+                    const h = Math.floor((distance % (1000*60*60*24)) / (1000*60*60));
+                    const m = Math.floor((distance % (1000*60*60)) / (1000*60));
+                    const s = Math.floor((distance % (1000*60)) / 1000);
+                    el.textContent = `Starts in: ${d}d ${h}h ${m}m ${s}s`;
+                }, 1000);
+                countdownIntervals.push(intervalId);
+            });
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const formId = e.target.id;
+            const email = document.getElementById(`${formId.startsWith('login') ? 'login' : 'register'}-email`).value;
+            const password = document.getElementById(`${formId.startsWith('login') ? 'login' : 'register'}-password`).value;
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            if (formId === 'login-form') {
+                auth.signInWithEmailAndPassword(email, password).catch(err => showNotification(err.message, 'error')).finally(() => {btn.disabled = false; btn.textContent = 'Login';});
+            } else {
+                const name = document.getElementById('register-name').value;
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then(cred => db.collection('users').doc(cred.user.uid).set({ name, email, walletBalance: 0, winningsBalance: 0, joinedTournaments: [] }))
+                    .catch(err => showNotification(err.message, 'error'))
+                    .finally(() => {btn.disabled = false; btn.textContent = 'Register';});
+            }
+        }
+        
+        function handleLogout() { auth.signOut().catch(err => showNotification(err.message, 'error')); }
+
+        function handleAddMoney(e) {
+            e.preventDefault();
+            const amount = parseInt(document.getElementById('add-amount').value);
+            if(amount < (appSettings.minDeposit || 0)) return showNotification(`Minimum deposit is ৳${appSettings.minDeposit || 0}`, 'warning');
+
+            const transactionId = document.getElementById('add-transaction-id').value;
+            const selectedMethodEl = document.querySelector('#deposit-methods-container .payment-method.selected');
+            if (!selectedMethodEl) return showNotification('Please select a payment method.', 'warning');
+            const methodName = selectedMethodEl.querySelector('.payment-method-name').textContent;
+
+            db.collection('paymentRequests').add({
+                userId: currentUser.uid, userName: document.getElementById('profile-name').textContent,
+                amount, transactionId, methodName, type: 'deposit', status: 'pending',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                showNotification('Deposit request submitted!', 'success');
+                e.target.reset();
+                document.getElementById('payment-details-container').classList.add('hidden');
+                document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+            }).catch(err => showNotification(err.message, 'error'));
+        }
+
+        function handleWithdraw(e) {
+            e.preventDefault();
+            const amount = parseInt(document.getElementById('withdraw-amount').value);
+            if(amount < (appSettings.minWithdrawal || 0)) return showNotification(`Minimum withdrawal is ৳${appSettings.minWithdrawal || 0}`, 'warning');
+
+            const mfsNumber = document.getElementById('mfs-number').value;
+            const selectedMethodEl = document.querySelector('#withdrawal-methods-container .payment-method.selected');
+            if (!selectedMethodEl) return showNotification('Please select a withdrawal method.', 'warning');
+            const methodName = selectedMethodEl.querySelector('.payment-method-name').textContent;
+            
+            const winningsBalance = parseInt(document.getElementById('profile-winnings').textContent);
+            if (amount > winningsBalance) return showNotification('Insufficient winnings balance.', 'error');
+            
+            db.collection('paymentRequests').add({
+                userId: currentUser.uid, userName: document.getElementById('profile-name').textContent,
+                amount, mfsNumber, methodName, type: 'withdrawal', status: 'pending',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                showNotification('Withdrawal request submitted!', 'success');
+                e.target.reset();
+                document.getElementById('withdrawal-details-container').classList.add('hidden');
+                 document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+            }).catch(err => showNotification(err.message, 'error'));
+        }
+        
+        document.addEventListener('submit', e => {
+            if (e.target.id === 'login-form' || e.target.id === 'register-form') handleAuth(e);
+            if (e.target.id === 'add-money-form') handleAddMoney(e);
+            if (e.target.id === 'withdraw-money-form') handleWithdraw(e);
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', handleLogout);
+
+        document.body.addEventListener('click', e => {
+            const navTarget = e.target.closest('[data-page]');
+            if (navTarget) { e.preventDefault(); showPage(navTarget.dataset.page); }
+
+            const tabTarget = e.target.closest('.auth-tab');
+            if (tabTarget) {
+                document.querySelectorAll('.auth-tab, .auth-form').forEach(el => el.classList.remove('active'));
+                tabTarget.classList.add('active');
+                document.getElementById(`${tabTarget.dataset.tab}-form`).classList.add('active');
+            }
+
+            const paymentMethodTarget = e.target.closest('.payment-method');
+            if (paymentMethodTarget) {
+                document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+                paymentMethodTarget.classList.add('selected');
+
+                const { container, index } = paymentMethodTarget.dataset;
+                const detailsContainerId = container === 'deposit-methods-container' ? 'payment-details-container' : 'withdrawal-details-container';
+                const methodsKey = container === 'deposit-methods-container' ? 'depositMethods' : 'withdrawalMethods';
+
+                const method = appSettings[methodsKey][index];
+                const containerEl = document.getElementById(detailsContainerId);
+                containerEl.innerHTML = `Send money to: <strong>${method.name} ${method.type || ''}</strong><br>Number: <strong>${method.number}</strong>`;
+                containerEl.classList.remove('hidden');
+            }
+
+            const actionBtn = e.target.closest('button[data-action]');
+            if (actionBtn) {
+                const { action, id, fee } = actionBtn.dataset;
+                if(action === 'join'){
+                    handleJoinTournament(id, parseInt(fee));
+                } else if(action === 'show-room'){
+                    handleShowRoom(id);
+                }
+            }
+
+            const modalCloseBtn = e.target.closest('.modal-close');
+            if(modalCloseBtn) {
+                modalCloseBtn.closest('.modal').classList.remove('active');
+            }
+        });
+
+        function handleJoinTournament(tournamentId, fee) {
+            const walletBalance = parseInt(document.getElementById('wallet-balance').textContent);
+            if (walletBalance < fee) return showNotification('Insufficient balance.', 'error');
+            if (!confirm(`Join for ৳${fee}? This will be deducted from your wallet.`)) return;
+
+            const userRef = db.collection('users').doc(currentUser.uid);
+            const tournamentRef = db.collection('tournaments').doc(tournamentId);
+            
+            db.runTransaction(async (transaction) => {
+                const userDoc = await transaction.get(userRef);
+                const tournamentDoc = await transaction.get(tournamentRef);
+                if (!userDoc.exists) throw "User not found!";
+                if (!tournamentDoc.exists) throw "Tournament not found!";
+
+                const newBalance = userDoc.data().walletBalance - fee;
+                if (newBalance < 0) throw "Transaction failed: Insufficient balance.";
+                
+                transaction.update(userRef, { 
+                    walletBalance: newBalance,
+                    joinedTournaments: firebase.firestore.FieldValue.arrayUnion(tournamentId)
+                });
+                transaction.update(tournamentRef, { joinedPlayers: firebase.firestore.FieldValue.increment(1) });
+            }).then(() => showNotification('Successfully joined!', 'success'))
+              .catch(err => showNotification(`Error: ${err.message || err}`, 'error'));
+        }
+        
+        async function handleShowRoom(tournamentId) {
+             try {
+                const doc = await db.collection('tournaments').doc(tournamentId).get();
+                if(!doc.exists) throw new Error("Tournament not found!");
+                const { roomId, roomPassword } = doc.data();
+                document.getElementById('room-details-content').innerHTML = `
+                    <p>Room ID: <strong>${roomId || 'Not set'}</strong></p>
+                    <p>Password: <strong>${roomPassword || 'Not set'}</strong></p>
+                `;
+                document.getElementById('room-details-modal').classList.add('active');
+             } catch(error) {
+                showNotification(error.message, 'error');
+             }
+        }
+        
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const targetPage = document.getElementById(`${pageId}-page`);
+            if (targetPage) targetPage.classList.add('active');
+            
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === pageId));
+            
+            const contentCard = document.getElementById('profile-content-card');
+            const isContentPage = ['privacy', 'terms'].includes(pageId);
+            
+            contentCard.classList.toggle('hidden', !isContentPage);
+            
+            if (isContentPage) {
+                document.getElementById('profile-page').classList.add('active'); 
+                const contentTitle = pageId === 'privacy' ? 'Privacy Policy' : 'Terms & Conditions';
+                const contentHTML = pageId === 'privacy' ? (appSettings.privacyPolicy || '') : (appSettings.termsConditions || '');
+                document.getElementById('content-title').textContent = contentTitle;
+                document.getElementById('content-body').innerHTML = contentHTML.replace(/\n/g, '<br>');
+            }
+        }
+        
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = `notification ${type} show`;
+            setTimeout(() => notification.classList.remove('show'), 3000);
+        }
+        
+        function handleFirestoreError(error) {
+            console.error("Firestore Error:", error);
+            if (error.code === 'permission-denied') {
+                 showNotification("Error: Missing or insufficient permissions.", "error");
+            } else {
+                 showNotification("Error connecting to server.", "error");
+            }
+        }
+    </script>
+</body>
+</html>
